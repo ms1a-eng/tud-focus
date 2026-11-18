@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="TUD Focus">
+<title>TUD CS50-Lernmissionen</title>
+<style>
+  :root {
+    --bg: #13151a;
+    --card: #1b1e25;
+    --card-2: #161920;
+    --hover: #21252e;
+    --border: #2b303b;
+    --border-strong: #3c4353;
+    --text: #f1f3f5;
+    --muted: #9aa1ad;
+    --dim: #6c7380;
+    --accent: #4c8dff;
+    --danger: #ef5350;
+    --ok: #34c759;
+    --warn: #f59e0b;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 26px 24px 64px;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Header */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .brand h1 {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .brand p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .top-right {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .kpi.danger { border-left: 3px solid var(--danger); }
+  .kpi.ok { border-left: 3px solid var(--ok); }
+  .kpi.accent { border-left: 3px solid var(--accent); }
+  .kpi-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .kpi-val {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .bar-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--ok);
+    transition: width 0.25s ease;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 8px 14px 10px;
+    cursor: pointer;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Layout */
+  .cols {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .box-head {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .box-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .box-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .box-body { padding: 16px; }
+
+  /* Buttons */
+  .btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 11px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #242832;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+  }
+  .btn:hover { background: #2d3240; border-color: var(--border-strong); text-decoration: none; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #3b7ef2; }
+  .btn.ok { background: #1f5f36; border-color: #2c864d; color: #dcfce7; }
+  .btn.ok:hover { background: #267342; }
+  .btn.danger { background: #3a1c1e; border-color: #6b2b2e; color: #fecaca; }
+  .btn.ghost { background: transparent; color: var(--muted); }
+  .btn.ghost:hover { color: var(--text); }
+
+  /* Active Mission Steps */
+  .m-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .m-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .m-tag.p0 { border-color: #6b2b2e; color: #fca5a5; background: #261416; }
+  .m-tag.p1 { border-color: #4f461d; color: #fde68a; background: #242012; }
+  .m-title { font-size: 17px; font-weight: 600; line-height: 1.3; }
+  .m-meta { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+  .step-block {
+    border: 1px solid var(--border);
+    background: var(--card-2);
+    border-radius: 8px;
+    padding: 13px 14px;
+    margin-bottom: 12px;
+  }
+  .step-block:last-child { margin-bottom: 0; }
+  .step-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .step-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  label.field {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  input[type="text"], textarea, select {
+    width: 100%;
+    margin-top: 4px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+  }
+  input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .timer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .timer-readout {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .checkpoint-msg {
+    display: none;
+    padding: 9px 12px;
+    border-radius: 6px;
+    background: #241f12;
+    border: 1px solid #5b491b;
+    color: #fde68a;
+    font-size: 12.5px;
+    margin-bottom: 10px;
+  }
+
+  .stuck-drawer {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+  }
+  .stuck-drawer.open { display: block; }
+  .stuck-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+  }
+  .hint-out {
+    display: none;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text);
+  }
+  .hint-out p { margin-bottom: 6px; }
+
+  .finish-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .pause-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+
+  /* Compact Lists (Orga & Queue) */
+  .row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .row.orga-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .orga-actions {
+    padding-left: 26px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: var(--hover); }
+  .row.done { opacity: 0.52; }
+  .row.done .row-title { text-decoration: line-through; }
+  .row.active-m { background: #1e2533; border-left: 3px solid var(--accent); }
+  .row-left { display: flex; gap: 10px; align-items: flex-start; flex: 1; min-width: 0; }
+  .row-left input[type="checkbox"] {
+    width: 16px; height: 16px; margin-top: 3px;
+    accent-color: var(--accent); cursor: pointer; flex-shrink: 0;
+  }
+  .row-title { font-size: 13.5px; font-weight: 600; }
+  .row-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .badge.mastered { border-color: #245236; background: #13261b; color: #86efac; }
+  .badge.assisted { border-color: #5b491b; background: #241f12; color: #fde68a; }
+  .badge.paused { border-color: #4b5563; background: #1f242d; color: #cbd5e1; }
+  .badge.urgent { border-color: #6b2b2e; background: #261416; color: #fca5a5; }
+
+  /* Skill tree & tables */
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  th {
+    background: var(--card-2);
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  /* ZP Quiz */
+  .zp-q {
+    border: 1px solid var(--border);
+    background: var(--card-2);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .zp-ans {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .callout strong { color: var(--text); }
+  .callout.ok { border-left-color: var(--ok); background: #132018; color: #bbf7d0; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--text);
+    color: var(--bg);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    display: none;
+    z-index: 99;
+  }
+
+  @media (max-width: 860px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .cols, .skill-grid, .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <h1>TUD CS50-Lernmissionen</h1>
+    <p>Gezielte Vorbereitung &rarr; eigenst&auml;ndige Herausforderung &rarr; &uuml;berpr&uuml;fbare Beherrschung (Stand Moodle: 18.11.2026)</p>
+  </div>
+  <div class="top-right" id="clock-note">Abgegeben &ne; Beherrscht</div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi danger">
+    <div class="kpi-label">Heute P0 (Orga &amp; Quiz)</div>
+    <div class="kpi-val" id="kpi-orga">0 / 3 gekl&auml;rt</div>
+    <div class="kpi-sub">DT Quiz 4 (18:00) + 2 Gruppen</div>
+  </div>
+  <div class="kpi accent">
+    <div class="kpi-label">Aktive Hauptmission</div>
+    <div class="kpi-val" id="kpi-active">DT Quiz 4 Drill</div>
+    <div class="kpi-sub" id="kpi-active-sub">Eine Aufgabe statt 4-Fach-Chaos</div>
+  </div>
+  <div class="kpi ok">
+    <div class="kpi-label">Eigenst&auml;ndig beherrscht</div>
+    <div class="kpi-val" id="kpi-mastered">0 / 7</div>
+    <div class="bar-track"><div id="mastery-bar" class="bar-fill"></div></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Modul-Ziele</div>
+    <div class="kpi-val">FoP 50 % &middot; AfSE 5/7</div>
+    <div class="kpi-sub">DT Quizzes/HAs &middot; ZP 03.12.</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('jetzt', this)">Jetzt</button>
+  <button class="tab-btn" onclick="showTab('skills', this)">CS50-Skillbaum &amp; Fristen</button>
+  <button class="tab-btn" onclick="showTab('zp', this)">Mathe ZP-Check (03.12.)</button>
+  <button class="tab-btn" onclick="showTab('system', this)">System &amp; Sicherung</button>
+</div>
+
+<!-- TAB 1: JETZT -->
+<div id="jetzt" class="panel active">
+  <div id="life-banner" class="callout ok" style="display:none;">
+    <strong>Hauptmission geschafft.</strong> Wenn die dringende Orga steht, darfst du jetzt bewusst Sport, Pause oder Schlaf priorisieren &ndash; weitere Missionen sind reiner Bonus.
+  </div>
+
+  <div class="cols">
+    <!-- LEFT: DIE EINE AKTIVE HAUPTMISSION -->
+    <div>
+      <div class="box">
+        <div class="box-head">
+          <span class="box-title">Aktive Hauptmission</span>
+          <span class="box-sub">Erst selbst denken, dann nachweisen</span>
+        </div>
+        <div class="box-body" id="active-mission-host"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: DRINGENDE ORGA + MISSIONS-WECHSLER -->
+    <div>
+      <div class="box">
+        <div class="box-head">
+          <span class="box-title">Orga-Blocker &amp; Fristen heute</span>
+          <span class="box-sub">Vor langer Lernarbeit kl&auml;ren</span>
+        </div>
+        <div id="orga-list"></div>
+      </div>
+
+      <div class="box">
+        <div class="box-head">
+          <span class="box-title">Missions-Reihenfolge (bis Fr 20.11.)</span>
+          <span class="box-sub">Klick zum Wechseln</span>
+        </div>
+        <div id="mission-queue"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: CS50-SKILLBAUM & FRISTEN -->
+<div id="skills" class="panel">
+  <div class="callout">
+    <strong>Zulassungs-Realit&auml;t (Moodle-gepr&uuml;ft, 18.11.2026):</strong> Nur was als <em>Eigenst&auml;ndig beherrscht</em> markiert ist, z&auml;hlt f&uuml;r dein CS50-Gef&uuml;hl. Freiwillige Mathe H&Uuml;5 bleibt bis nach Freitag zur&uuml;ckgestellt; <strong>TUCaN-Anmeldung</strong> f&uuml;r Mathe &amp; AfSE (Klausur + Studienleistung) l&auml;uft bis <strong>15.12., 23:59</strong>.
+  </div>
+
+  <div class="skill-grid" id="module-cards"></div>
+
+  <div style="margin-top: 18px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Frist</th>
+          <th>Modul</th>
+          <th>Offizielle Leistung</th>
+          <th>Relevanz / Regel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Heute Mi 18.11., 18:00</strong></td><td>Digitaltechnik</td><td><strong>Quiz 4</strong> (VL 4/5: Boole, CMOS, SV)</td><td>1 Versuch &middot; Pflicht f&uuml;r Zulassung</td></tr>
+        <tr><td><strong>Fr 20.11., 23:50</strong></td><td>FoP</td><td><strong>&Uuml;bungsblatt 04</strong> (Klassen) + Beanstandung H02</td><td>Ziel 188/375 P. + Pr&auml;senz-Erkl&auml;rtest (strenges KI-Verbot)</td></tr>
+        <tr><td><strong>Fr 20.11., 23:59</strong></td><td>AfSE</td><td><strong>Haus&uuml;bung 3</strong> (20 P.: Produktautomat, NEA&rarr;DEA, L^R)</td><td><strong>5/7 &ge; 40 % (8 P.)</strong> &middot; 3&ndash;4er Gruppe auf Deckblatt Pflicht</td></tr>
+        <tr><td><strong>Fr 20.11., 23:59</strong></td><td>Digitaltechnik</td><td><strong>Hausaufgabe B</strong> (B.1&ndash;B.6, PDF+ZIP) + Gruppenwahl</td><td>Ohne Gruppe in <code>groupselect</code> technisch gesperrt</td></tr>
+        <tr><td><em>So 22.11., 23:59</em></td><td>Mathe I</td><td>Optionale Wahl: englische ZP-Version</td><td>Nur falls Englisch gew&uuml;nscht</td></tr>
+        <tr><td><strong>Mi 25.11., 18:00</strong></td><td>Digitaltechnik</td><td>Quiz 5</td><td>1 Versuch &middot; Pflicht f&uuml;r Zulassung</td></tr>
+        <tr><td><strong>Mi 25.11., 23:59</strong></td><td>AfSE</td><td>Selbstkorrektur H&Uuml; 3 (+ Stempelstunde Mo&ndash;Mi)</td><td>Stempelkarte: 5/7 f&uuml;r 0,3/0,4 Klausurbonus</td></tr>
+        <tr><td><strong>Do 03.12., 08:00&ndash;09:40</strong></td><td>Mathe I</td><td><strong>Zwischenpr&uuml;fung (Kap. 1&ndash;3 / VL 1&ndash;11)</strong></td><td><strong>Einziger Versuch</strong> f&uuml;r Klausurzulassung &middot; Disser-Skript erlaubt</td></tr>
+        <tr><td><strong>Di 15.12., 23:59</strong></td><td>Mathe &amp; AfSE</td><td>TUCaN-Anmeldung (Klausur + Studienleistung)</td><td>Keine Nachmeldung m&ouml;glich</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB 3: MATHE ZP-CHECK -->
+<div id="zp" class="panel">
+  <div class="callout">
+    <strong>Wochenend-Diagnose (max. 25 Min, ohne KI, ohne Vorab-Lesen):</strong> Laut Prof. Disser (03.11.) behandelt die ZP am <strong>03.12.</strong> nur <strong>Kapitel 1&ndash;3 (erste 11&ndash;12 Vorlesungen, bis inkl. Komplexe Zahlen / Zahlbereiche)</strong> &ndash; keine Vektoren ab Do 19.11. (Kap. 4). Erlaubtes Hilfsmittel: ausgedrucktes Disser-Skript mit normalen handschriftlichen Notizen (keine L&ouml;sungen!).
+  </div>
+
+  <div class="box">
+    <div class="box-head">
+      <span class="box-title">25-Min-Blindcheck (3 repr&auml;sentative Kap.-1&ndash;3-Proben)</span>
+      <span class="box-sub" id="zp-timer-label">Timer: 25:00</span>
+    </div>
+    <div class="box-body">
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <button class="btn primary" onclick="startZpTimer()">25-Min-Blindcheck starten</button>
+        <button class="btn" onclick="resetZpTimer()">Reset</button>
+      </div>
+
+      <div class="zp-q">
+        <div class="step-label">Probe 1 (Kap. 1: Mengen &amp; Quantoren)</div>
+        <p class="step-desc" style="margin-top:4px;">Wahr oder falsch mit kurzem Begr&uuml;ndungs-Satz ohne Nachschlagen:<br>
+        (a) F&uuml;r A = {1}, B = {2} gilt P(A &cup; B) = P(A) &cup; P(B).<br>
+        (b) Negiere ohne &not; vor dem Quantor: &forall; n &isin; &#x2115; &exist; m &isin; &#x2115; : n &lt; m.</p>
+        <textarea id="zp-note-1" rows="2" placeholder="Deine eigene L&ouml;sung vor dem Aufdecken..." oninput="saveZpNote(1, this.value)"></textarea>
+        <div style="margin-top:8px;"><button class="btn" onclick="toggleEl('zp-a1')">Aufl&ouml;sung pr&uuml;fen</button></div>
+        <div id="zp-a1" class="zp-ans">
+          (a) <strong>Falsch:</strong> Die Mischmenge {1, 2} liegt in P(A &cup; B), aber weder in P(A) noch in P(B).<br>
+          (b) <strong>Negation:</strong> &exist; n &isin; &#x2115; &forall; m &isin; &#x2115; : n &ge; m (Quantoren flippen, Relation zu &ge; umkehren).
+        </div>
+      </div>
+
+      <div class="zp-q">
+        <div class="step-label">Probe 2 (Kap. 1&ndash;2: Relationen &amp; Induktion/Restklassen)</div>
+        <p class="step-desc" style="margin-top:4px;">(a) Ist (&lt;) auf &#x2124; antisymmetrisch? Begr&uuml;nde formal.<br>
+        (b) Berechne 2<sup>50</sup> mod 7 im Kopf / auf Papier (Idee: Zyklusl&auml;nge von 2<sup>k</sup> mod 7).</p>
+        <textarea id="zp-note-2" rows="2" placeholder="Deine eigene L&ouml;sung vor dem Aufdecken..." oninput="saveZpNote(2, this.value)"></textarea>
+        <div style="margin-top:8px;"><button class="btn" onclick="toggleEl('zp-a2')">Aufl&ouml;sung pr&uuml;fen</button></div>
+        <div id="zp-a2" class="zp-ans">
+          (a) <strong>Ja (wahr):</strong> (x &lt; y &and; y &lt; x) &rArr; x = y hat immer eine falsche Pr&auml;misse &rarr; Implikation ist immer wahr (<em>ex falso quodlibet</em>). Total ist (&lt;) aber <strong>nicht</strong> (wegen 2 &nlt; 2).<br>
+          (b) 2<sup>3</sup> = 8 &equiv; 1 (mod 7), also 2<sup>50</sup> = (2<sup>3</sup>)<sup>16</sup> &middot; 2<sup>2</sup> &equiv; 1 &middot; 4 = 4 (mod 7).
+        </div>
+      </div>
+
+      <div class="zp-q">
+        <div class="step-label">Probe 3 (Kap. 3: Untergruppenkriterium &amp; Ringe)</div>
+        <p class="step-desc" style="margin-top:4px;">Welche <strong>zwei/drei minimalen Pr&uuml;fschritte</strong> zeigt man, um nachzuweisen, dass U &sube; G eine Untergruppe der Gruppe (G, &middot;) ist? Und wann ist ein Element in &#x2124;<sub>6</sub> ein Nullteiler?</p>
+        <textarea id="zp-note-3" rows="2" placeholder="Deine eigene L&ouml;sung vor dem Aufdecken..." oninput="saveZpNote(3, this.value)"></textarea>
+        <div style="margin-top:8px;"><button class="btn" onclick="toggleEl('zp-a3')">Aufl&ouml;sung pr&uuml;fen</button></div>
+        <div id="zp-a3" class="zp-ans">
+          Untergruppe: (1) U &ne; &empty; (oft e &isin; U), (2) &forall; a, b &isin; U : a &middot; b<sup>-1</sup> &isin; U (oder Abgeschlossenheit + Inverse).<br>
+          Nullteiler in &#x2124;<sub>6</sub>: a &ne; [0] mit b &ne; [0] sodass a &middot; b &equiv; 0 (mod 6) &rarr; z. B. [2], [3], [4].
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: SYSTEM & SICHERUNG -->
+<div id="system" class="panel">
+  <div class="cols">
+    <div class="box">
+      <div class="box-head">
+        <span class="box-title">Arbeitsregeln (Abgestimmt mit ChatGPT)</span>
+      </div>
+      <div class="box-body" style="font-size:13px; color:var(--muted);">
+        <p style="margin-bottom:8px;"><strong style="color:var(--text);">1. Aufgaben selbst entschl&uuml;sseln:</strong> Jede Aufgabe zuerst in eigenen Worten definieren (Gegeben / Gesucht), bevor irgendeine Hilfe ge&ouml;ffnet wird.</p>
+        <p style="margin-bottom:8px;"><strong style="color:var(--text);">2. 20-Min-Kontrollpunkt statt Zeit-Stopp:</strong> Pr&uuml;fe nach 20 Min: Komme ich dem Ziel n&auml;her? Wenn nicht: fehlt echte Grundlage, oder ist es ein unn&ouml;tiger Tiefen-Exkurs (<em>&bdquo;Was w&uuml;rde sich konkret &auml;ndern?&ldquo;</em>)?</p>
+        <p style="margin-bottom:8px;"><strong style="color:var(--text);">3. Ausreichendes vor vollst&auml;ndigem Verst&auml;ndnis:</strong> Du musst nicht jedes Detail vorher ausleuchten, bevor du weitermachst.</p>
+        <p><strong style="color:var(--text);">4. ChatGPT-K&uuml;rzel bei echten Blockern:</strong> Schreibe dort einfach <code>Nutze Lernen mit Mostafa</code> + deinen konkreten eigenen Versuch.</p>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-head">
+        <span class="box-title">Daten sichern (Export / Import)</span>
+        <span class="box-sub">Trennt Tages-Orga von Beherrschung</span>
+      </div>
+      <div class="box-body">
+        <p style="font-size:12.5px; color:var(--muted); margin-bottom:10px;">Speichert deine Missionen, Entschl&uuml;sselungs-Notizen, ZP-Proben und Orga-Haken als JSON-Datei. Tipp am iPad: In Safari über „Teilen → Zum Home-Bildschirm“ als App ablegen. Datenabgleich mit PC per JSON Export/Import.</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="exportState()">JSON exportieren</button>
+          <label class="btn" style="cursor:pointer;">
+            JSON importieren
+            <input type="file" accept=".json" style="display:none;" onchange="importState(event)">
+          </label>
+          <button class="btn ghost" onclick="resetOrgaOnly()">Nur Orga zur&uuml;cksetzen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORAGE_KEY = "tud_cs50_v2_state";
+
+const ORGA_ITEMS = [
+  {
+    id: "orga_dt_q4",
+    title: "DT Quiz 4 ablegen (1 Versuch)",
+    deadline: "HEUTE 18:00",
+    urgent: true,
+    note: "Zulassungsrelevant. Vorher in Hauptmission 1 kurz aufw\u00e4rmen.",
+    link: "https://moodle.tu-darmstadt.de/mod/quiz/view.php?id=1848549",
+    linkLabel: "Quiz 4 \u2197"
+  },
+  {
+    id: "orga_dt_group",
+    title: "DT HA B Abgabegruppe bilden / beitreten",
+    deadline: "Blocker Fr 20.11.",
+    urgent: true,
+    note: "Moodle sperrt Abgabe aktuell (\u201eKein Mitglied in einer Gruppe\u201c). Gruppe AZ existiert in HA B noch nicht.",
+    link: "https://moodle.tu-darmstadt.de/mod/groupselect/view.php?id=1848713",
+    linkLabel: "Gruppe w\u00e4hlen \u2197",
+    link2: "https://moodle.tu-darmstadt.de/mod/forum/view.php?id=1892364",
+    link2Label: "Such-Forum \u2197"
+  },
+  {
+    id: "orga_afse_group",
+    title: "AfSE H3 3\u20134er Gruppe & Upload-Person kl\u00e4ren",
+    deadline: "Pflicht Fr 20.11.",
+    urgent: true,
+    note: "Einzel-/2er-Abgaben werden nicht bewertet! Mit H1-Gruppe absprechen oder B\u00f6rse nutzen.",
+    link: "https://moodle.tu-darmstadt.de/mod/forum/view.php?id=1850059",
+    linkLabel: "Gruppen-B\u00f6rse \u2197"
+  }
+];
+
+const MISSIONS = [
+  {
+    id: "dt_q4",
+    module: "DT",
+    prio: "P0",
+    deadline: "Heute Mi 18.11., 18:00",
+    title: "DT Quiz 4: Boole, Bubble Pushing & SystemVerilog",
+    prep: "Erst Aufgaben rechnen, nur bei H\u00e4ngern gezielt in Folien 04/05 nachschlagen &mdash; NICHT vorab durchlesen.",
+    phGiven: "z. B. Formel Y = NOT(((DB)+C)A) bzw. Wahrheitstabelle",
+    phGoal: "z. B. DNF/KNF, Bubble Pushing & SV-Syntax vor Quiz 4",
+    challenge: "Rechne in Tutorium 4 der Reihe nach: (1) Aufg. 4.1 (CMOS), (2) Aufg. 4.3 & 4.4 (Wahrheitstabelle <-> DNF/KNF), (3) Aufg. 4.6 (SystemVerilog). Erst danach rechts Quiz 4 (1 Versuch) starten!",
+    transfer: "Forme (A + B) * NOT(C) im Kopf per Bubble Pushing zu reinen NAND-Gattern um und schreibe den SystemVerilog-assign-Ausdruck.",
+    hints: {
+      meaning: "Lies zuerst die Quizfrage: Ist nach einem einzelnen Gatter, einer Wahrheitstabelle oder einem SystemVerilog-Syntaxfehler gefragt?",
+      basics: "Inverter-Kreis an Eingang/Ausgang verschieben: AND mit Kreisen an beiden Seiten <-> OR mit Kreis am Ausgang (De Morgan).",
+      approach: "Bei SystemVerilog immer pr\u00fcfen: Bitbreiten [N-1:0], blocking/non-blocking bzw. kontinuierliches assign f\u00fcr kombinatorische Logik."
+    },
+    links: [
+      { label: "DT Material (Hessenbox) \u2197", url: "https://next.hessenbox.de/index.php/s/SypnqT6Co57f9To" },
+      { label: "HDLBits \u2197", url: "https://hdlbits.01xz.net/wiki/Step_one" }
+    ]
+  },
+  {
+    id: "afse_h3_1",
+    module: "AfSE",
+    prio: "P1",
+    deadline: "Fr 20.11., 23:59 (8/20 P. = 40 %-H\u00fcrde)",
+    title: "AfSE H3.1: Produktautomat (Vereinigung) & NEA\u2192DEA",
+    prep: "Nur die fehlende H2-Basis aus Material/AfSE/AFE_Kap4.pdf & Kap5.pdf holen: Definition Produktautomat + Potenzmengenkonstruktion.",
+    phGiven: "z. B. 2 DEAs A1, A2 oder 5-Zustands-NEA",
+    phGoal: "z. B. Produkt-DEA f\u00fcr Vereinigung (8 P.)",
+    challenge: "L\u00f6se H3.1(a) und (b) in AFE_Uebung3.pdf erst komplett auf Papier, dann im Automatarium gegentesten.",
+    transfer: "Erkl\u00e4re ohne Unterlagen: Warum ist beim Schnitt F = F1 x F2, bei der Vereinigung aber F = (F1 x Q2) U (Q1 x F2)? Und was ist die leere Menge als Zustand im DEA?",
+    hints: {
+      meaning: "H3.1(a) will einen einzigen DEA f\u00fcr L(A1) U L(A2) \u00fcber Produktzust\u00e4nde. H3.1(b) will einen DEA aus dem gegebenen NEA per erreichbaren Teilmengen.",
+      basics: "Produktzustand (q1, q2) akzeptiert bei Vereinigung genau dann, wenn q1 in F1 ODER q2 in F2 liegt. Bei NEA->DEA startest du mit {q0} (bzw. eps-H\u00fclle).",
+      approach: "Erstelle eine \u00dcbergangstabelle nur f\u00fcr erreichbare Teilmengen ab {s}, statt alle 2^|Q| Mengen aufzuschreiben."
+    },
+    links: [
+      { label: "AfSE (Hessenbox) \u2197", url: "https://next.hessenbox.de/index.php/s/H97SP85psHF35HK" },
+      { label: "AfSE Abgabe H3 \u2197", url: "https://moodle.tu-darmstadt.de/mod/assign/view.php?id=1912547" },
+      { label: "Automatarium \u2197", url: "https://automatarium.tdm.au/" }
+    ]
+  },
+  {
+    id: "dt_hab_cmos",
+    module: "DT",
+    prio: "P1",
+    deadline: "Fr 20.11., 23:59 (7/20 P.)",
+    title: "DT HA B.1: CMOS PUN/PDN & Kurzschluss-Analyse",
+    prep: "CMOS-Basis abrufen (pMOS leitet 1, nMOS leitet 0) + dt_Hausaufgabe-B.pdf B.1.1/B.1.2.",
+    challenge: "Zeichne B.1.1 (Y = NOT(A + B(C+E)(D+FG))) als PDN + duales PUN (Oberstrich schon da -> kein Extra-Inverter!). Finde in B.1.2 den Kurzschluss.",
+    transfer: "Konstruiere spontan die CMOS-Transistorschaltung f\u00fcr Y = NOT(A*B + C) und zeige, warum nie VDD mit GND direkt verbunden wird.",
+    hints: {
+      meaning: "B.1.1 verlangt Transistor-Schaltplan (ohne negierte Eing\u00e4nge!). B.1.2 verlangt Eingaben, bei denen die fehlerhafte Schaltung einen Kurzschluss hat.",
+      basics: "Im PDN (nMOS nach GND): + bedeutet Parallel, * bedeutet in Reihe. Im PUN (pMOS nach VDD): genau dual (Parallel <-> Reihe).",
+      approach: "F\u00fcr B.1.2 suche eine Variablenbelegung, bei der gleichzeitig mindestens ein Pfad oben (pMOS) und ein Pfad unten (nMOS) geschlossen ist."
+    },
+    links: [
+      { label: "HA B (Hessenbox) \u2197", url: "https://next.hessenbox.de/index.php/s/SypnqT6Co57f9To" },
+      { label: "Moodle HA B \u2197", url: "https://moodle.tu-darmstadt.de/mod/assign/view.php?id=1848714" }
+    ]
+  },
+  {
+    id: "dt_hab_sv",
+    module: "DT",
+    prio: "P1",
+    deadline: "Fr 20.11., 23:59 (13/20 P.)",
+    title: "DT HA B.2\u2013B.6: XOR4 & SystemVerilog (.sv + ./sim.sh)",
+    prep: "VSCode Copilot Inline-Suggestions abschalten (Tutor-Hinweis!), ggf. 3 Basics in HDLBits.",
+    challenge: "Bearbeite B.2 (XOR4), B.3 (funktion.sv), B.4 (blinky.sv), B.5 (DB Notbremse) und B.6 (multi_combination_lock.sv) mit ./sim.sh.",
+    transfer: "Warum sind initial-Bl\u00f6cke in synthetisierbarem Code verboten und wie testest du einen 10-Bit-Zahlencode sauber mit Basisgattern?",
+    hints: {
+      meaning: "Pr\u00fcfe in den bereitgestellten .sv-Ger\u00fcsten zuerst die Modul-Ports (input/output Namen und Bitbreiten) und welche Basisgatter erlaubt sind.",
+      basics: "KNF liest Zeilen mit Y=0 ab (ODER-Terme mit AND verkn\u00fcpft); DNF liest Zeilen mit Y=1 ab (UND-Terme mit OR verkn\u00fcpft).",
+      approach: "Teste jede .sv-Datei einzeln mit ./sim.sh [modulname] und fasse am Ende PDF + ZIP aller .sv zusammen."
+    },
+    links: [
+      { label: "Moodle HA B \u2197", url: "https://moodle.tu-darmstadt.de/mod/assign/view.php?id=1848714" },
+      { label: "HDLBits \u2197", url: "https://hdlbits.01xz.net/wiki/Step_one" }
+    ]
+  },
+  {
+    id: "fop_h04",
+    module: "FoP",
+    prio: "P1",
+    deadline: "Fr 20.11., 23:50",
+    title: "FoP H04: Klassen eigenst\u00e4ndig in Java umsetzen",
+    prep: "Git-Vorlage aus Moodle-Abschnitt 4 klonen und Klassen/Attribute/Methodensignaturen auf Papier skizzieren (strenges KI-Verbot!).",
+    challenge: "Implementiere Teilaufgabe f\u00fcr Teilaufgabe lokal mit Tests; vermeide Perfektionismus-Schleifen, wenn alle Kernanforderungen gr\u00fcn sind.",
+    transfer: "Erkl\u00e4re jede selbst geschriebene Methode, Konstruktor-Zuweisung (this) und Objekt-Referenz frei wie im sp\u00e4teren Pr\u00e4senz-Test.",
+    hints: {
+      meaning: "Teile das PDF in kleine Vertr\u00e4ge je Methode: Was kommt als Parameter rein, was wird ver\u00e4ndert (void vs. R\u00fcckgabetyp), welche Edge-Cases stehen im Text?",
+      basics: "Pr\u00fcfe Null-Checks, Array-Grenzen und ob Methoden ein neues Objekt zur\u00fcckgeben oder bestehende Felder mutieren sollen.",
+      approach: "Erst den Happy Path + Unit-Tests zum Laufen bringen, dann Randf\u00e4lle pr\u00fcfen und ./gradlew submission bauen."
+    },
+    links: [
+      { label: "FoP Abschnitt 4 \u2197", url: "https://moodle.tu-darmstadt.de/course/section.php?id=638425" },
+      { label: "FoP H04 Abgabe \u2197", url: "https://moodle.tu-darmstadt.de/mod/assign/view.php?id=1829150" }
+    ]
+  },
+  {
+    id: "afse_h3_rest",
+    module: "AfSE",
+    prio: "P2",
+    deadline: "Fr 20.11., 23:59 (12 P. Puffer)",
+    title: "AfSE H3.2 & H3.3: Konkatenation & Umkehrung L^R",
+    prep: "Erst starten, wenn H3.1 sicher steht. AFE_Kap5.pdf zu NEA-Operationen bereitlegen.",
+    challenge: "Baue in H3.2 den NEA f\u00fcr L(A1) o L(A2) + zugeh\u00f6rigen DEA; entwirf in H3.3 die Umkehrung L^R.",
+    transfer: "Warum braucht man bei L^R einen neuen gemeinsamen Startzustand mit eps-\u00dcberg\u00e4ngen zu den alten Endzust\u00e4nden?",
+    hints: {
+      meaning: "H3.2(a) verlangt erst nur den NEA (einfacher!), erst (b) determinisiert ihn. H3.3 will eine allgemeine Konstruktion + kurzes Korrektheitsargument.",
+      basics: "Konkatenation: alle Endzust\u00e4nde von A1 per eps-Kante mit Startzustand von A2 verbinden und Endzustandseigenschaft von A1 entfernen (au\u00dfer Start von A2 ist akzeptierend).",
+      approach: "Bei Umkehrung alle Kanten umkehren, alten Startzustand zum einzigen Endzustand machen und neuen Start per eps an alle alten Endzust\u00e4nde h\u00e4ngen."
+    },
+    links: [
+      { label: "AfSE Abgabe H3 \u2197", url: "https://moodle.tu-darmstadt.de/mod/assign/view.php?id=1912547" }
+    ]
+  },
+  {
+    id: "mathe_zp_check",
+    module: "Mathe I",
+    prio: "P2",
+    deadline: "Wochenende (25 Min) \u2192 ZP Do 03.12.",
+    title: "Mathe I: 25-Min-ZP-Blindcheck (Kap. 1\u20133 / VL 1\u201311)",
+    prep: "Ohne Nachlesen starten! Nutze den Reiter \u201eMathe ZP-Check (03.12.)\u201c.",
+    challenge: "Rechne die 3 Kap.-1\u20133-Proben in 25 Min blind ohne KI und notiere anschlie\u00dfend in 5 Min genau die fehlenden Definitionen im Skript.",
+    transfer: "Trage f\u00fcr jede unsichere Regel ein eigenes kurzes Beispiel als erlaubte Handschrift-Notiz in dein gedrucktes Disser-Skript ein.",
+    hints: {
+      meaning: "Ziel ist keine volle Altklausur, sondern eine ehrliche Diagnose f\u00fcr den Einstieg n\u00e4chste Woche.",
+      basics: "Pr\u00fcfungsstoff laut Prof. Disser: nur Kapitel 1\u20133 (erste 11\u201312 Vorlesungen, bis inkl. komplexe Zahlen / K\u00f6rper).",
+      approach: "Markiere nach den 25 Min nur die Themen mit echten L\u00fccken und starte genau dort."
+    },
+    links: [
+      { label: "Mathe Moodle \u2197", url: "https://moodle.tu-darmstadt.de/course/view.php?id=50332" }
+    ]
+  }
+];
+
+function defaultState() {
+  return {
+    activeMissionId: "dt_q4",
+    orga: {},
+    missions: {},
+    zpNotes: {}
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...defaultState(), ...JSON.parse(raw) };
+  } catch {}
+  return defaultState();
+}
+
+let state = loadState();
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function mState(id) {
+  if (!state.missions[id]) {
+    state.missions[id] = { given: "", goal: "", status: "open", pauseNote: "", stuckReason: "" };
+  }
+  return state.missions[id];
+}
+
+// Timer state (20-Min Checkpoint)
+let timerInterval = null;
+let timerSeconds = 20 * 60;
+let timerRunning = false;
+
+function formatTime(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return m + ":" + s;
+}
+
+function toggleMissionTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+  } else {
+    timerRunning = true;
+    timerInterval = setInterval(() => {
+      if (timerSeconds > 0) {
+        timerSeconds--;
+        const el = document.getElementById("m-timer");
+        if (el) el.textContent = formatTime(timerSeconds);
+      } else {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        const cp = document.getElementById("m-checkpoint");
+        if (cp) cp.style.display = "block";
+      }
+    }, 1000);
+  }
+  const btn = document.getElementById("m-timer-btn");
+  if (btn) btn.textContent = timerRunning ? "Pause" : "20-Min-Kontrollpunkt starten";
+}
+
+function resetMissionTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = 20 * 60;
+  const el = document.getElementById("m-timer");
+  if (el) el.textContent = formatTime(timerSeconds);
+  const btn = document.getElementById("m-timer-btn");
+  if (btn) btn.textContent = "20-Min-Kontrollpunkt starten";
+  const cp = document.getElementById("m-checkpoint");
+  if (cp) cp.style.display = "none";
+}
+
+function triggerCheckpointNow() {
+  const cp = document.getElementById("m-checkpoint");
+  if (cp) cp.style.display = "block";
+}
+
+// ZP 25-Min Timer
+let zpInterval = null;
+let zpSeconds = 25 * 60;
+function startZpTimer() {
+  clearInterval(zpInterval);
+  zpInterval = setInterval(() => {
+    if (zpSeconds > 0) {
+      zpSeconds--;
+      document.getElementById("zp-timer-label").textContent = "Timer: " + formatTime(zpSeconds);
+    } else {
+      clearInterval(zpInterval);
+      document.getElementById("zp-timer-label").textContent = "25:00 um \u2014 jetzt auswerten!";
+    }
+  }, 1000);
+}
+function resetZpTimer() {
+  clearInterval(zpInterval);
+  zpSeconds = 25 * 60;
+  document.getElementById("zp-timer-label").textContent = "Timer: 25:00";
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if (btn) btn.classList.add("active");
+}
+
+function selectMission(id) {
+  state.activeMissionId = id;
+  saveState();
+  resetMissionTimer();
+  renderAll();
+}
+
+function toggleOrga(id, checked) {
+  state.orga[id] = checked;
+  saveState();
+  renderAll();
+}
+
+function updateMissionField(id, field, val) {
+  mState(id)[field] = val;
+  saveState();
+}
+
+function setMissionStatus(id, status) {
+  const ms = mState(id);
+  if (status === "mastered") {
+    if (!ms.given.trim() && !ms.goal.trim()) {
+      toast("Schreibe in Schritt 1 kurz Gegeben/Gesucht auf.");
+      return;
+    }
+  }
+  ms.status = status;
+  if (status !== "paused") ms.pauseNote = "";
+  saveState();
+  renderAll();
+  if (status === "mastered") toast("Als eigenst\u00e4ndig beherrscht gespeichert.");
+  if (status === "assisted") toast("Als mit Hilfe erledigt markiert (Transfer noch offen).");
+}
+
+function pauseMission(id) {
+  const inp = document.getElementById("pause-input");
+  const note = inp ? inp.value.trim() : "";
+  const ms = mState(id);
+  ms.status = "paused";
+  ms.pauseNote = note || "Sp\u00e4ter fortsetzen";
+  saveState();
+  renderAll();
+  toast("Mission pausiert.");
+}
+
+function toggleStuck() {
+  const dr = document.getElementById("stuck-drawer");
+  if (dr) dr.classList.toggle("open");
+}
+
+function pickStuckReason(id, reasonKey) {
+  const m = MISSIONS.find(x => x.id === id);
+  const ms = mState(id);
+  ms.stuckReason = reasonKey;
+  saveState();
+  const out = document.getElementById("hint-out");
+  const textEl = document.getElementById("hint-text");
+  const chatBtn = document.getElementById("hint-gpt-link");
+  if (out && textEl && m) {
+    textEl.textContent = m.hints[reasonKey] || "";
+    if (chatBtn) {
+      const prompt = `Nutze Lernen mit Mostafa. Modul: ${m.module} (${m.title}). Gegeben laut mir: "${ms.given || "-"}". Gesucht laut mir: "${ms.goal || "-"}". Mein konkreter H\u00e4nger (${reasonKey}): Hilf mir sokratisch ohne L\u00f6sung.`;
+      chatBtn.href = "https://chatgpt.com/?q=" + encodeURIComponent(prompt);
+    }
+    out.style.display = "block";
+  }
+}
+
+function renderActiveMission() {
+  const m = MISSIONS.find(x => x.id === state.activeMissionId) || MISSIONS[0];
+  const ms = mState(m.id);
+  const host = document.getElementById("active-mission-host");
+
+  const statusBadge =
+    ms.status === "mastered" ? `<span class="badge mastered">Eigenst\u00e4ndig beherrscht</span>` :
+    ms.status === "assisted" ? `<span class="badge assisted">Mit Hilfe geschafft (Transfer offen)</span>` :
+    ms.status === "paused" ? `<span class="badge paused">Pausiert: ${esc(ms.pauseNote)}</span>` :
+    `<span class="badge">Offen</span>`;
+
+  const linksHtml = (m.links || []).map(l => `<a class="btn" href="${l.url}" target="_blank">${esc(l.label)}</a>`).join("");
+
+  host.innerHTML = `
+    <div class="m-header">
+      <div>
+        <span class="m-tag ${m.prio === "P0" ? "p0" : "p1"}">${esc(m.prio)} &middot; ${esc(m.module)} &middot; ${esc(m.deadline)}</span>
+        <div class="m-title">${esc(m.title)}</div>
+        <div class="m-meta">Vorbereitung: ${m.prep}</div>
+      </div>
+      <div>${statusBadge}</div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-head">
+        <span class="step-label">Schritt 1 &mdash; Aufgabe selbst entschl&uuml;sseln (ohne KI)</span>
+      </div>
+      <div class="field-row">
+        <label class="field">Was ist gegeben / welche Voraussetzung gilt?
+          <input type="text" value="${esc(ms.given)}" placeholder="${esc(m.phGiven || "Kurz in eigenen Worten: Was liegt vor?")}" oninput="updateMissionField('${m.id}', 'given', this.value)">
+        </label>
+        <label class="field">Was ist konkret gesucht / Abgabekriterium?
+          <input type="text" value="${esc(ms.goal)}" placeholder="${esc(m.phGoal || "Was musst du genau liefern / verstehen?")}" oninput="updateMissionField('${m.id}', 'goal', this.value)">
+        </label>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-head">
+        <span class="step-label">Schritt 2 &mdash; Eigenst&auml;ndige Herausforderung</span>
+        <div style="display:flex; gap:6px;">${linksHtml}</div>
+      </div>
+      <div class="step-desc">${esc(m.challenge)}</div>
+
+      <div class="timer-bar">
+        <span class="timer-readout" id="m-timer">${formatTime(timerSeconds)}</span>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn primary" id="m-timer-btn" onclick="toggleMissionTimer()">${timerRunning ? "Pause" : "20-Min-Kontrollpunkt starten"}</button>
+          <button class="btn" onclick="triggerCheckpointNow()">Check jetzt</button>
+          <button class="btn ghost" onclick="resetMissionTimer()">Reset</button>
+        </div>
+      </div>
+
+      <div id="m-checkpoint" class="checkpoint-msg">
+        <strong>20-Min-Kontrollpunkt:</strong> Bist du der L&ouml;sung n&auml;hergekommen? Falls nein: Fehlt eine unverzichtbare Grundlage, oder gr&auml;bst du in unn&ouml;tiger Tiefe (<em>Was w&uuml;rde sich dadurch konkret &auml;ndern?</em>)?
+      </div>
+
+      <button class="btn" onclick="toggleStuck()">Ich stecke fest (nach eigenem Versuch)</button>
+
+      <div id="stuck-drawer" class="stuck-drawer">
+        <div style="font-size:12.5px; font-weight:600;">Woran h&auml;ngst du genau? (Erst benennen, dann kleiner Hinweis)</div>
+        <div class="stuck-choices">
+          <button class="btn" onclick="pickStuckReason('${m.id}', 'meaning')">Formulierung unklar</button>
+          <button class="btn" onclick="pickStuckReason('${m.id}', 'basics')">Grundlage fehlt</button>
+          <button class="btn" onclick="pickStuckReason('${m.id}', 'approach')">Erster Schritt fehlt</button>
+        </div>
+        <div id="hint-out" class="hint-out">
+          <p id="hint-text"></p>
+          <a id="hint-gpt-link" class="btn primary" href="#" target="_blank">Gezielt mit ChatGPT entschl&uuml;sseln &nearr;</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-head">
+        <span class="step-label">Schritt 3 &mdash; &Uuml;berpr&uuml;fbare Beherrschung (Transfer-Probe)</span>
+      </div>
+      <div class="step-desc"><strong>Selbst-Test ohne Hilfe:</strong> ${esc(m.transfer)}</div>
+      <div class="finish-row">
+        <button class="btn ok" onclick="setMissionStatus('${m.id}', 'mastered')">Allein + Transfer bestanden</button>
+        <button class="btn" onclick="setMissionStatus('${m.id}', 'assisted')">Mit Hilfe geschafft</button>
+        <button class="btn ghost" onclick="setMissionStatus('${m.id}', 'open')">Zur&uuml;ck auf Offen</button>
+      </div>
+      <div class="pause-row">
+        <input id="pause-input" type="text" value="${esc(ms.pauseNote)}" placeholder="Falls blockiert (z. B. warte auf Gruppenpartner)..." style="margin-top:0;">
+        <button class="btn" onclick="pauseMission('${m.id}')">Pausieren</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderOrga() {
+  const host = document.getElementById("orga-list");
+  let doneCount = 0;
+  host.innerHTML = ORGA_ITEMS.map(item => {
+    const checked = !!state.orga[item.id];
+    if (checked) doneCount++;
+    return `
+      <div class="row orga-row ${checked ? "done" : ""}">
+        <div class="row-left">
+          <input type="checkbox" ${checked ? "checked" : ""} onchange="toggleOrga('${item.id}', this.checked)">
+          <div>
+            <div class="row-title">${esc(item.title)} <span class="badge urgent">${esc(item.deadline)}</span></div>
+            <div class="row-sub">${esc(item.note)}</div>
+          </div>
+        </div>
+        <div class="orga-actions">
+          <a class="btn primary" href="${item.link}" target="_blank">${esc(item.linkLabel)}</a>
+          ${item.link2 ? `<a class="btn" href="${item.link2}" target="_blank">${esc(item.link2Label)}</a>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+  document.getElementById("kpi-orga").textContent = `${doneCount} / ${ORGA_ITEMS.length} gekl\u00e4rt`;
+}
+
+function renderQueue() {
+  const host = document.getElementById("mission-queue");
+  let mastered = 0;
+  let assisted = 0;
+  host.innerHTML = MISSIONS.map(m => {
+    const ms = mState(m.id);
+    if (ms.status === "mastered") mastered++;
+    if (ms.status === "assisted") assisted++;
+    const active = m.id === state.activeMissionId;
+    const tag =
+      ms.status === "mastered" ? `<span class="badge mastered">Beherrscht</span>` :
+      ms.status === "assisted" ? `<span class="badge assisted">Mit Hilfe</span>` :
+      ms.status === "paused" ? `<span class="badge paused">Pausiert</span>` :
+      `<span class="badge">${esc(m.prio)}</span>`;
+    return `
+      <div class="row ${active ? "active-m" : ""}" style="cursor:pointer;" onclick="selectMission('${m.id}')">
+        <div>
+          <div class="row-title">${esc(m.module)}: ${esc(m.title.replace(m.module + ": ", ""))}</div>
+          <div class="row-sub">${esc(m.deadline)}</div>
+        </div>
+        <div>${tag}</div>
+      </div>
+    `;
+  }).join("");
+
+  const cur = MISSIONS.find(x => x.id === state.activeMissionId) || MISSIONS[0];
+  document.getElementById("kpi-active").textContent = cur.module + " \u00b7 " + cur.prio;
+  document.getElementById("kpi-active-sub").textContent = cur.title;
+  document.getElementById("kpi-mastered").textContent = `${mastered} / ${MISSIONS.length}` + (assisted ? ` (+${assisted} Hilfe)` : "");
+  document.getElementById("mastery-bar").style.width = Math.round((mastered / MISSIONS.length) * 100) + "%";
+
+  const curStatus = mState(cur.id).status;
+  document.getElementById("life-banner").style.display = (curStatus === "mastered" || curStatus === "assisted") ? "block" : "none";
+}
+
+function renderSkills() {
+  const modules = [
+    {
+      name: "Digitaltechnik",
+      official: "Pflicht: Online-Quizzes & Hausaufgaben",
+      items: [
+        { label: "Zahlensysteme & 2er-Komplement (HA A)", fixed: "mastered" },
+        { label: "CMOS Pegel & Dualit\u00e4t (VL 3)", fixed: "mastered" },
+        { label: "Boole, Bubble Pushing & SystemVerilog (Quiz 4)", missionId: "dt_q4" },
+        { label: "CMOS PDN/PUN & Kurzschluss (HA B.1)", missionId: "dt_hab_cmos" },
+        { label: "XOR4 & SystemVerilog (HA B.2\u2013B.6)", missionId: "dt_hab_sv" }
+      ]
+    },
+    {
+      name: "AfSE",
+      official: "Ziel: 5/7 Haus\u00fcbungen >= 40 % (3\u20134er Gruppe!)",
+      items: [
+        { label: "Basis-DEAs (H1)", fixed: "mastered" },
+        { label: "Produktautomat & NEA->DEA (H3.1 = 8 P.)", missionId: "afse_h3_1" },
+        { label: "Konkatenation & Umkehrung L^R (H3.2\u20133.3)", missionId: "afse_h3_rest" }
+      ]
+    },
+    {
+      name: "FoP (Java)",
+      official: "Ziel: 188 / 375 P. (50 %) + Pr\u00e4senz-Test",
+      items: [
+        { label: "FopBot, Referenzen, Schleifen & 1D/2D-Arrays (H00\u2013H03)", fixed: "mastered" },
+        { label: "Objektorientierung & Klassen (H04)", missionId: "fop_h04" }
+      ]
+    },
+    {
+      name: "Mathematik I",
+      official: "ZP Do 03.12. 08:00 (Kap. 1\u20133 / VL 1\u201311) \u00b7 9 KT f\u00fcr Bonus",
+      items: [
+        { label: "Kap. 1\u20133 Blindcheck (Mengen, Relationen, Induktion, Gruppen)", missionId: "mathe_zp_check" }
+      ]
+    }
+  ];
+
+  const host = document.getElementById("module-cards");
+  host.innerHTML = modules.map(mod => {
+    const rows = mod.items.map(it => {
+      const st = it.fixed || mState(it.missionId).status;
+      const badge =
+        st === "mastered" ? `<span class="badge mastered">Beherrscht</span>` :
+        st === "assisted" ? `<span class="badge assisted">Mit Hilfe</span>` :
+        st === "paused" ? `<span class="badge paused">Pausiert</span>` :
+        `<span class="badge">Offen</span>`;
+      const act = it.missionId ? `style="cursor:pointer;" onclick="selectMission('${it.missionId}'); showTab('jetzt', document.querySelectorAll('.tab-btn')[0])"` : "";
+      return `<div class="row" ${act}><div class="row-title" style="font-weight:500;">${esc(it.label)}</div>${badge}</div>`;
+    }).join("");
+    return `
+      <div class="box" style="margin-bottom:0;">
+        <div class="box-head">
+          <span class="box-title">${esc(mod.name)}</span>
+          <span class="box-sub">${esc(mod.official)}</span>
+        </div>
+        <div>${rows}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function saveZpNote(idx, val) {
+  state.zpNotes[idx] = val;
+  saveState();
+}
+
+function toggleEl(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = (el.style.display === "block") ? "none" : "block";
+}
+
+function exportState() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "tud_cs50_backup_2026-11-18.json";
+  a.click();
+  toast("Backup exportiert.");
+}
+
+function importState(ev) {
+  const f = ev.target.files?.[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const parsed = JSON.parse(r.result);
+      state = { ...defaultState(), ...parsed };
+      saveState();
+      renderAll();
+      toast("Backup importiert.");
+    } catch {
+      toast("Ung\u00fcltige JSON-Datei.");
+    }
+  };
+  r.readAsText(f);
+}
+
+function resetOrgaOnly() {
+  state.orga = {};
+  saveState();
+  renderAll();
+  toast("Orga-Haken zur\u00fcckgesetzt.");
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => { t.style.display = "none"; }, 2200);
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+function renderAll() {
+  renderActiveMission();
+  renderOrga();
+  renderQueue();
+  renderSkills();
+  [1, 2, 3].forEach(i => {
+    const el = document.getElementById("zp-note-" + i);
+    if (el && state.zpNotes[i]) el.value = state.zpNotes[i];
+  });
+}
+
+window.addEventListener("DOMContentLoaded", renderAll);
+</script>
+</body>
+</html>
